@@ -1,6 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
-import { log } from 'console';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { UserDto } from 'src/dto/user-dto';
+import { JwtAuthGuardService } from 'src/services/jwt-auth.guard/jwt-auth.guard.service';
 import { UsersService } from 'src/services/users/users.service';
 import { User } from 'src/shemas/user';
 
@@ -19,6 +20,7 @@ export class UsersController {
     return this.userService.getUserById(id);
   }
 
+  // @UseGuards(JwtAuthGuardService)
   @Post()
   sendUser(@Body() data: UserDto): Promise<User> {
     return this.userService.checkRegUser(data.login).then((queryRes) => {
@@ -27,25 +29,45 @@ export class UsersController {
           return this.userService.sendUser(data);
       } else {
           console.log('err - user is exists')
-          return Promise.reject();
+          throw new HttpException({
+            status: HttpStatus.CONFLICT,
+            errorText: 'Пользователь уже зарегистрирован',
+          }, HttpStatus.CONFLICT);
       }
   });
   }
 
+  @UseGuards(AuthGuard('local'))
   @Post(":login")
-  authUser(@Body() data: UserDto, @Param('login') login): Promise<User | boolean>  {
+  authUser(@Body() data: UserDto, @Param('login') login): any  {
     
-      return this.userService.checkAuthUser(data.login, data.password).then((queryRes) => {
-        console.log('queryRes: ', queryRes);
-          if (queryRes.length !== 0) {
-              return Promise.resolve(true);
-          } else {
-              console.log('err - user is exists')
-              return Promise.reject();
-          }
-      });
+      return this.userService.login(data)
+      
 
   }
+
+
+
+
+
+  // @UseGuards(AuthGuard('local'))
+  // @Post(":login")
+  // authUser(@Body() data: UserDto, @Param('login') login): Promise<User | boolean>  {
+    
+  //     return this.userService.checkAuthUser(data.login, data.password).then((queryRes) => {
+  //       console.log('queryRes: ', queryRes);
+  //         if (queryRes.length !== 0) {
+  //             return Promise.resolve(true);
+  //         } else {
+  //             console.log('err - user is exists')
+  //             throw new HttpException({
+  //               status: HttpStatus.CONFLICT,
+  //               errorText: 'Пользователь не найден',
+  //             }, HttpStatus.CONFLICT);
+  //         }
+  //     });
+
+  // }
 
 
   @Put(":id")
