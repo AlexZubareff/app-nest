@@ -16,12 +16,24 @@ export class ToursService {
             const tour = new TourDto('test'+i, 'testdesc', 'test operator', '222'+i);
             const tourData = new this.tourModel(tour);
             tourData.save();
+            
+            
         }
     }
 
     async deleteTours(): Promise<any>{
     
         return this.tourModel.deleteMany({});
+        
     }
+
+    async getAllTours(): Promise<Tour[]> {
+        // console.log(this.tourModel.find())
+        return this.tourModel.find();
+      }
+
+    async getTourById(id: string): Promise<Tour> {
+        return this.tourModel.findById(id);
+      }
 
 }

@@ -4,16 +4,15 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { UserDto } from 'src/dto/user-dto';
 import { User, UserDocument } from 'src/shemas/user';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
-
-
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
-    private jwtService: JwtService
-){}
- 
+    private jwtService: JwtService,
+  ) {}
+
   async getAllUsers(): Promise<User[]> {
     return this.userModel.find();
   }
@@ -23,6 +22,13 @@ export class UsersService {
   }
 
   async sendUser(data): Promise<User> {
+    // console.log('new user: ', data);
+
+    const salt = await bcrypt.genSalt(10);
+    data.password = await bcrypt.hash(data.password, salt);
+
+    // console.log('new user hash pass: ', data);
+
     const userData = new this.userModel(data);
     return userData.save();
   }
@@ -39,22 +45,25 @@ export class UsersService {
     return this.userModel.findByIdAndDelete(id);
   }
 
-  async checkAuthUser(login: string, password: string): Promise<User[]> {
-    const usersArr = await this.userModel.find({login: login, password: password});
-
-    return usersArr.length === 0 ? null : usersArr;
-}
-
-async checkRegUser(login: string): Promise<User[]> {
-    return this.userModel.find({login: login});
-}
-
-async login(user: UserDto) {
-  const payload = {login: user.login, password: user.password};
-  return{
-    access_token: this.jwtService.sign(payload),
+  async checkAuthUser(login: string, password: string): Promise<User | null> {
+    const user = await this.userModel.findOne({ login: login });
+    if (!user) {
+      return null;
+    }
+    if (!(await bcrypt.compare(password, user.password))) {
+      return null;
+    }
+    return user;
   }
-}
 
+  async checkRegUser(login: string): Promise<User[]> {
+    return this.userModel.find({ login: login });
+  }
 
+  async login(user: UserDto) {
+    const payload = { login: user.login, password: user.password };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
+  }
 }
