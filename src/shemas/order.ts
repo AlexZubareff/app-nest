@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { IOrder } from '../interfaces/order';
  
-export type OrderDocument = HydratedDocument<IOrder>;
+export type OrderDocument = HydratedDocument<Order>;
  
 @Schema()
 export class Order implements IOrder {
@@ -15,10 +15,6 @@ export class Order implements IOrder {
     @Prop() userId: string;
 
     @Prop() tourId: string;
- 
-    @Prop() img: string;
- 
-    @Prop() _id: string;
 }
  
 export const OrderSchema = SchemaFactory.createForClass(Order);

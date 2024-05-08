@@ -62,7 +62,9 @@ export class UsersService {
 
   async login(user: UserDto) {
     const payload = { login: user.login, password: user.password };
+    const userFromDb = await this.userModel.find({login: user.login})
     return {
+      id: userFromDb[0]._id,
       access_token: this.jwtService.sign(payload),
     };
   }

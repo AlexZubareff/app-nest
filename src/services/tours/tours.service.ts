@@ -11,12 +11,12 @@ export class ToursService {
 
     }
 
-    generateTours(): void {
+    async generateTours(): Promise<any> {
         for(let i = 0; i <= this.toursCount; i++) {
             const tour = new TourDto('test'+i, 'testdesc', 'test operator', '222'+i);
             const tourData = new this.tourModel(tour);
             tourData.save();
-            
+         
             
         }
     }
