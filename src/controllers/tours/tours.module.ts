@@ -7,9 +7,10 @@ import { JwtStrategyService } from 'src/services/jwt-strategy/jwt-strategy.servi
 import { MongooseModule } from '@nestjs/mongoose';
 import { Tour, TourSchema } from 'src/shemas/tour';
 import { ToursService } from 'src/services/tours/tours.service';
+import { TourItemController } from '../tour-item/tour-item.controller';
 
 @Module({
-    controllers: [ToursController],
+    controllers: [ToursController, TourItemController],
     imports: [
         MongooseModule.forFeature([{name: Tour.name, schema: TourSchema}]),
         PassportModule,
