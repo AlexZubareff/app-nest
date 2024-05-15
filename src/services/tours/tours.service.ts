@@ -37,6 +37,11 @@ export class ToursService {
         return this.tourModel.findById(id);
       }
 
+    async getToursByName(name: string): Promise<Tour[]> {
+        return this.tourModel.find({name: { "$regex": name, "$options": "i" }})
+    
+    }  
+
     async uploadTour(body: ITourClient){
         const tour = new TourDto(body.name,body.description,body.tourOperator, body.price,body.img);
         const tourData = new this.tourModel(tour);

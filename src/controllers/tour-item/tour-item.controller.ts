@@ -1,7 +1,7 @@
-import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { ITourClient } from 'src/interfaces/tour';
+import { ITour, ITourClient } from 'src/interfaces/tour';
 import { ToursService } from 'src/services/tours/tours.service';
 
 @Controller('tour-item')
@@ -29,5 +29,13 @@ export class TourItemController {
     body.img = TourItemController.imgName;
     this.tourService.uploadTour(body);
 }
+
+
+@Get(":name")
+getToursByName(@Param('name') name): Promise<ITour[]> {
+    return this.tourService.getToursByName(name)
+}
+
+
 
 }
